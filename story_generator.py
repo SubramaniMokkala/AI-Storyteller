@@ -1,25 +1,38 @@
 from transformers import pipeline
 import torch
+import re
 
 class StoryGenerator:
     def __init__(self):
         """Initialize the text generation model."""
-        # Ensure the model runs on CPU for compatibility
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.generator = pipeline('text-generation', model='gpt2', device=0 if device == "cuda" else -1)
+        
+        # Using a better model than GPT-2
+        self.generator = pipeline(
+            'text-generation', 
+            model='EleutherAI/gpt-neo-1.3B', 
+            device=0 if device == "cuda" else -1
+        )
 
     def generate_story(self, user_inputs):
         """Generate a story based on user-provided parameters."""
         prompt = self._create_prompt(user_inputs)
         
-        # Generate text
-        result = self.generator(prompt, max_length=500, num_return_sequences=1, temperature=0.7)
+        # Generate text with improved settings
+        result = self.generator(
+            prompt, 
+            max_length=400, 
+            num_return_sequences=1, 
+            temperature=0.9, 
+            top_k=50, 
+            top_p=0.95
+        )
         
-        # Extract the generated text
+        # Extract generated text
         generated_text = result[0]['generated_text']
         
-        # Remove the prompt from the output to keep only the story
-        story = generated_text.replace(prompt, "").strip()
+        # Remove repeated sentences
+        story = self._remove_repeated_sentences(generated_text.replace(prompt, "").strip())
         
         return story
 
@@ -49,3 +62,17 @@ The story begins:
 """
 
         return prompt
+
+    def _remove_repeated_sentences(self, text):
+        """Remove repetitive sentences from generated text."""
+        sentences = text.split(". ")
+        seen = set()
+        new_text = []
+        
+        for sentence in sentences:
+            cleaned_sentence = re.sub(r"\W+", "", sentence.lower())  # Normalize sentence
+            if cleaned_sentence not in seen:
+                seen.add(cleaned_sentence)
+                new_text.append(sentence)
+        
+        return ". ".join(new_text)
