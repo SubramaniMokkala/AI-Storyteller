@@ -1,8 +1,8 @@
 import streamlit as st
 from story_generator import StoryGenerator
 
-# Streamlit page config - MUST be the first command!
-st.set_page_config(page_title="AI Story Generator", layout="wide")
+# Streamlit page config - MUST be the first Streamlit command!
+st.set_page_config(page_title="📖 AI Story Generator", layout="wide")
 
 # Instantiate the story generator
 story_gen = StoryGenerator()
