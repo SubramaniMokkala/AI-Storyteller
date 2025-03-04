@@ -2,6 +2,13 @@ import streamlit as st
 from story_generator import StoryGenerator
 import time
 
+# Set page config MUST be the first Streamlit command
+st.set_page_config(
+    page_title="AI Storyteller",
+    page_icon="📚",
+    layout="wide"
+)
+
 # Initialize the story generator (may take a moment to load the model)
 @st.cache_resource
 def load_generator():
@@ -9,13 +16,6 @@ def load_generator():
         return StoryGenerator()
 
 story_gen = load_generator()
-
-# Configure page
-st.set_page_config(
-    page_title="AI Storyteller",
-    page_icon="📚",
-    layout="wide"
-)
 
 # App title and description
 st.title("🪄 AI-Powered Storyteller")
